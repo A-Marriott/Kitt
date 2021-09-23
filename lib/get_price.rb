@@ -45,7 +45,7 @@ def get_price(duration_minutes)
   return total_price
 end
 
-p get_price(2880)
+p get_price(140)
 
 
 # this will be able to be refactored by calling a single function that deals with each level of week/day payments etc. instead of repeating the specifics of each if
