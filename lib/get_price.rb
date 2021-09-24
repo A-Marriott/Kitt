@@ -34,14 +34,30 @@ def get_price(time_unit, duration_minutes)
       'weeks_booked' => 0,
       'days_booked' => 0,
       'hours_booked' => 0,
-      'minutes_booked' => 0
+      'minutes_booked' => 0,
+      'weeks_cost' => 0,
+      'days_cost' => 0,
+      'hours_cost' => 0,
+      'minutes_cost' => 0,
+      exit_function?: false,
+      items_to_test: []
     }
   end
   info["#{time_unit}s_booked"] = info[:duration_left] / minutes_conversion[time_unit]
-  time_unit_cost = tariff[time_unit] * info["#{time_unit}s_booked"]
+  info["#{time_unit}s_cost"] = tariff[time_unit] * info["#{time_unit}s_booked"]
   info[:duration_left] -= minutes_conversion[time_unit] * info["#{time_unit}s_booked"]
-  info[:total_cost] += time_unit_cost
-  # if total_cost >
+  info[:total_cost] += info["#{time_unit}s_cost"]
+  # if info[:total_cost] > info['weeks_booked'] + tariff['week']
+    # p info['weeks_booked'] + tariff['week']
+  # end
+  info[:items_to_test].each do |time|
+    if info["#{time_unit}s_cost"] > tariff[time]
+      info[:total_cost] = info["#{time}s_booked"] + tariff["#{time}"]
+      info[:exit_function?] = true
+    end
+  end
+  info[:items_to_test].unshift(time_unit)
+
   if time_unit == 'minute'
     info[:total_cost]
   else
@@ -49,7 +65,7 @@ def get_price(time_unit, duration_minutes)
   end
 end
 
-p get_price('minute', 11581)
+p get_price('minute', 2880)
 
 # maybe way to not pass time unit, only duration minutes
 # better variable names
