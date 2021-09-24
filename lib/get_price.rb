@@ -24,25 +24,25 @@ def next_unit_of_time
   }
 end
 
-def get_price(unit_of_time, duration_minutes)
-  info = if next_unit_of_time[unit_of_time]
-           get_price(next_unit_of_time[unit_of_time], duration_minutes)
+# unit referes to unit of time, e.g. hour
+def get_price(unit, duration_minutes)
+  info = if next_unit_of_time[unit]
+           get_price(next_unit_of_time[unit], duration_minutes)
          else
            {
              duration_left: duration_minutes,
+             items_to_test: [],
              'weeks_cost' => 0,
              'days_cost' => 0,
              'hours_cost' => 0,
-             'minutes_cost' => 0,
-             items_to_test: []
+             'minutes_cost' => 0
            }
          end
-  # make this less imperative
 
-  unit_of_times_booked = info[:duration_left] / minutes_conversion[unit_of_time]
-  info["#{unit_of_time}s_cost"] = tariff[unit_of_time] * unit_of_times_booked
-  info[:duration_left] -= minutes_conversion[unit_of_time] * unit_of_times_booked
-  times_tested = [unit_of_time]
+  units_booked = info[:duration_left] / minutes_conversion[unit]
+  info["#{unit}s_cost"] = tariff[unit] * units_booked
+  info[:duration_left] -= minutes_conversion[unit] * units_booked
+  times_tested = [unit]
   info[:items_to_test].each do |time|
     if times_tested.map { |tim| info["#{tim}s_cost"] }.inject(:+) > tariff[time]
       times_tested.each { |tim| info["#{tim}s_cost"] = 0 }
@@ -53,9 +53,9 @@ def get_price(unit_of_time, duration_minutes)
       times_tested.push(time)
     end
   end
-  info[:items_to_test].unshift(unit_of_time)
+  info[:items_to_test].unshift(unit)
 
-  if unit_of_time == 'minute'
+  if unit == 'minute'
     info["weeks_cost"] + info["days_cost"] + info["hours_cost"] + info["minutes_cost"]
     # make sure this isn't explicitly typed, inferred from something
   else
