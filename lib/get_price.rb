@@ -24,16 +24,12 @@ def step_list
   }
 end
 
-def get_price(time_unit, duration_minutes)
-  if step_list[time_unit]
-    info = get_price(step_list[time_unit], duration_minutes)
+def get_price(unit_of_time, duration_minutes)
+  if step_list[unit_of_time]
+    info = get_price(step_list[unit_of_time], duration_minutes)
   else
     info = {
       duration_left: duration_minutes,
-      'weeks_booked' => 0,
-      'days_booked' => 0,
-      'hours_booked' => 0,
-      'minutes_booked' => 0,
       'weeks_cost' => 0,
       'days_cost' => 0,
       'hours_cost' => 0,
@@ -43,12 +39,12 @@ def get_price(time_unit, duration_minutes)
     }
   end
   # make this less imperative
-  return info if info[:exit_function?] && time_unit != 'minute'
+  return info if info[:exit_function?] && unit_of_time != 'minute'
 
-  info["#{time_unit}s_booked"] = info[:duration_left] / minutes_conversion[time_unit]
-  info["#{time_unit}s_cost"] = tariff[time_unit] * info["#{time_unit}s_booked"]
-  info[:duration_left] -= minutes_conversion[time_unit] * info["#{time_unit}s_booked"]
-  times_tested = [time_unit]
+  unit_of_times_booked = info[:duration_left] / minutes_conversion[unit_of_time]
+  info["#{unit_of_time}s_cost"] = tariff[unit_of_time] * unit_of_times_booked
+  info[:duration_left] -= minutes_conversion[unit_of_time] * unit_of_times_booked
+  times_tested = [unit_of_time]
   info[:items_to_test].each do |time|
     if times_tested.map { |tim| info["#{tim}s_cost"] }.inject(:+) > tariff[time]
       times_tested.each { |tim| info["#{tim}s_cost"] = 0 }
@@ -59,9 +55,9 @@ def get_price(time_unit, duration_minutes)
       times_tested.push(time)
     end
   end
-  info[:items_to_test].unshift(time_unit)
+  info[:items_to_test].unshift(unit_of_time)
 
-  if time_unit == 'minute'
+  if unit_of_time == 'minute'
     info["weeks_cost"] + info["days_cost"] + info["hours_cost"] + info["minutes_cost"]
     # make sure this isn't explicitly typed, inferred from something
   else
