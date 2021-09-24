@@ -26,18 +26,28 @@ end
 
 def get_price(time_unit, duration_minutes)
   if step_list[time_unit]
-    get_price(step_list[time_unit], duration_minutes)
+    p info = get_price(step_list[time_unit], duration_minutes)
+  else
+    info = {
+      total_cost: 0,
+      duration_left: duration_minutes
+    }
   end
-  time_unit_booked = duration_minutes / minutes_conversion[time_unit]
+  time_unit_booked = info[:duration_left] / minutes_conversion[time_unit]
   time_unit_cost = tariff[time_unit] * time_unit_booked
-  duration_left = duration_minutes - minutes_conversion[time_unit] * time_unit_booked
-  return {
-    total_cost: time_unit_cost,
-    duration_left: duration_left
-  }
+  duration_left = info[:duration_left] - minutes_conversion[time_unit] * time_unit_booked
+  total_cost = time_unit_cost + info[:total_cost]
+  if time_unit == 'minute'
+    total_cost
+  else
+    {
+      total_cost: total_cost,
+      duration_left: duration_left
+    }
+  end
 end
 
-get_price('minute', 11520)
+p get_price('minute', 11581)
 
 # maybe way to not pass time unit, only duration minutes
 
