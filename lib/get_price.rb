@@ -35,21 +35,20 @@ def get_price(time_unit, duration_minutes)
   end
   time_unit_booked = info[:duration_left] / minutes_conversion[time_unit]
   time_unit_cost = tariff[time_unit] * time_unit_booked
-  duration_left = info[:duration_left] - minutes_conversion[time_unit] * time_unit_booked
-  total_cost = time_unit_cost + info[:total_cost]
+  info[:duration_left] -= minutes_conversion[time_unit] * time_unit_booked
+  info[:total_cost] += time_unit_cost
+  # if total_cost >
   if time_unit == 'minute'
-    total_cost
+    info[:total_cost]
   else
-    {
-      total_cost: total_cost,
-      duration_left: duration_left
-    }
+    info
   end
 end
 
 p get_price('minute', 11581)
 
 # maybe way to not pass time unit, only duration minutes
+# better variable names
 
 
 # def get_price(duration_minutes)
