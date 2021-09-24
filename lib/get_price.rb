@@ -24,7 +24,7 @@ def next_unit_of_time
   }
 end
 
-# unit referes to unit of time, e.g. hour
+# Unit referes to unit of time, e.g. hour
 def get_price(unit, duration_minutes)
   info = if next_unit_of_time[unit]
            get_price(next_unit_of_time[unit], duration_minutes)
@@ -38,19 +38,22 @@ def get_price(unit, duration_minutes)
              'minutes_cost' => 0
            }
          end
-
+  # We find the numbers of times a given unit can wholly fit into the duration left (e.g. an hour into 150 minutes)
+  # An hour fits 2 times into 150 minutes, so we add this to hours_cost (£22 * 2), and take away the quantity of time (60 minutes * 2) from duration_left
   units_booked = info[:duration_left] / minutes_conversion[unit]
   info["#{unit}s_cost"] = tariff[unit] * units_booked
   info[:duration_left] -= minutes_conversion[unit] * units_booked
-  times_tested = [unit]
+
+  # This deals with cases where it's cheaper to get a longer time period (e.g. 1 day = £60) than many smaller time periods (e.g. 2 hours (£44) + 20 minutes (£40) = £84)
+  units_to_test = [unit]
   info[:items_to_test].each do |time|
-    if times_tested.map { |tim| info["#{tim}s_cost"] }.inject(:+) > tariff[time]
-      times_tested.each { |tim| info["#{tim}s_cost"] = 0 }
+    if units_to_test.map { |tim| info["#{tim}s_cost"] }.inject(:+) > tariff[time]
+      units_to_test.each { |tim| info["#{tim}s_cost"] = 0 }
       info["#{time}s_cost"] += tariff[time]
-      times_tested = [time]
+      units_to_test = [time]
       info[:duration_left] = 0
     else
-      times_tested.push(time)
+      units_to_test.push(time)
     end
   end
   info[:items_to_test].unshift(unit)
