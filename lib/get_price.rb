@@ -26,7 +26,7 @@ end
 
 def get_price(time_unit, duration_minutes)
   if step_list[time_unit]
-    p info = get_price(step_list[time_unit], duration_minutes)
+    info = get_price(step_list[time_unit], duration_minutes)
   else
     info = {
       duration_left: duration_minutes,
@@ -48,11 +48,15 @@ def get_price(time_unit, duration_minutes)
   info["#{time_unit}s_booked"] = info[:duration_left] / minutes_conversion[time_unit]
   info["#{time_unit}s_cost"] = tariff[time_unit] * info["#{time_unit}s_booked"]
   info[:duration_left] -= minutes_conversion[time_unit] * info["#{time_unit}s_booked"]
+  times_tested = [time_unit]
   info[:items_to_test].each do |time|
-    if info["#{time_unit}s_cost"] > tariff[time]
-      info["#{time_unit}s_cost"] = 0
+    if times_tested.map { |tim| info["#{tim}s_cost"] }.inject(:+) > tariff[time]
+      times_tested.each { |tim| info["#{tim}s_cost"] = 0 }
       info["#{time}s_cost"] += tariff[time]
+      times_tested = [time]
       info[:exit_function?] = true
+    else
+      times_tested.push(time)
     end
   end
   info[:items_to_test].unshift(time_unit)
@@ -65,7 +69,7 @@ def get_price(time_unit, duration_minutes)
   end
 end
 
-p get_price('minute', 2880)
+p get_price('minute', 1560)
 
 # maybe way to not pass time unit, only duration minutes
 # better variable names
