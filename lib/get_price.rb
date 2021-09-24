@@ -42,12 +42,16 @@ def get_price(time_unit, duration_minutes)
       items_to_test: []
     }
   end
+  # make this less imperative
+  return info if info[:exit_function?] && time_unit != 'minute'
+
   info["#{time_unit}s_booked"] = info[:duration_left] / minutes_conversion[time_unit]
   info["#{time_unit}s_cost"] = tariff[time_unit] * info["#{time_unit}s_booked"]
   info[:duration_left] -= minutes_conversion[time_unit] * info["#{time_unit}s_booked"]
   info[:items_to_test].each do |time|
     if info["#{time_unit}s_cost"] > tariff[time]
-      info[:total_cost] = info["#{time}s_booked"] + tariff["#{time}"]
+      info["#{time_unit}s_cost"] = 0
+      info["#{time}s_cost"] += tariff[time]
       info[:exit_function?] = true
     end
   end
@@ -55,15 +59,17 @@ def get_price(time_unit, duration_minutes)
 
   if time_unit == 'minute'
     info["weeks_cost"] + info["days_cost"] + info["hours_cost"] + info["minutes_cost"]
+    # make sure this isn't explicitly typed, inferred from something
   else
     info
   end
 end
 
-p get_price('minute', 64)
+p get_price('minute', 2880)
 
 # maybe way to not pass time unit, only duration minutes
 # better variable names
+# add comments
 
 
 # def get_price(duration_minutes)
