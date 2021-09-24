@@ -35,6 +35,8 @@ def get_price(unit, duration_minutes)
   end
 end
 
+# puts get_price('minutes', 253)
+
 def tariff
   {
     'week' => 105,
