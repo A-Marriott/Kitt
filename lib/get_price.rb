@@ -16,7 +16,7 @@ def minutes_conversion
   }
 end
 
-def step_list
+def next_unit_of_time
   {
     'minute' => 'hour',
     'hour' => 'day',
@@ -25,21 +25,19 @@ def step_list
 end
 
 def get_price(unit_of_time, duration_minutes)
-  if step_list[unit_of_time]
-    info = get_price(step_list[unit_of_time], duration_minutes)
-  else
-    info = {
-      duration_left: duration_minutes,
-      'weeks_cost' => 0,
-      'days_cost' => 0,
-      'hours_cost' => 0,
-      'minutes_cost' => 0,
-      exit_function?: false,
-      items_to_test: []
-    }
-  end
+  info = if next_unit_of_time[unit_of_time]
+           get_price(next_unit_of_time[unit_of_time], duration_minutes)
+         else
+           {
+             duration_left: duration_minutes,
+             'weeks_cost' => 0,
+             'days_cost' => 0,
+             'hours_cost' => 0,
+             'minutes_cost' => 0,
+             items_to_test: []
+           }
+         end
   # make this less imperative
-  return info if info[:exit_function?] && unit_of_time != 'minute'
 
   unit_of_times_booked = info[:duration_left] / minutes_conversion[unit_of_time]
   info["#{unit_of_time}s_cost"] = tariff[unit_of_time] * unit_of_times_booked
@@ -50,7 +48,7 @@ def get_price(unit_of_time, duration_minutes)
       times_tested.each { |tim| info["#{tim}s_cost"] = 0 }
       info["#{time}s_cost"] += tariff[time]
       times_tested = [time]
-      info[:exit_function?] = true
+      info[:duration_left] = 0
     else
       times_tested.push(time)
     end
@@ -133,8 +131,3 @@ p get_price('minute', 1560)
 # end
 
 # p get_price(140)
-
-
-# # this will be able to be refactored by calling a single function that deals with each level of week/day payments etc. instead of repeating the specifics of each if
-# # maybe store information in an object for week price, week duration
-# # use tarrif as term
