@@ -11,7 +11,8 @@ def minutes_conversion
   {
     'week' => 10080,
     'day' => 1440,
-    'hour' => 60
+    'hour' => 60,
+    'minute' => 1
   }
 end
 
@@ -27,10 +28,18 @@ def get_price(time_unit, duration_minutes)
   if step_list[time_unit]
     get_price(step_list[time_unit], duration_minutes)
   end
-
+  time_unit_booked = duration_minutes / minutes_conversion[time_unit]
+  time_unit_cost = tariff[time_unit] * time_unit_booked
+  duration_left = duration_minutes - minutes_conversion[time_unit] * time_unit_booked
+  return {
+    total_cost: time_unit_cost,
+    duration_left: duration_left
+  }
 end
 
 get_price('minute', 11520)
+
+# maybe way to not pass time unit, only duration minutes
 
 
 # def get_price(duration_minutes)
