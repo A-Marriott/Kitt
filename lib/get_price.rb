@@ -30,12 +30,16 @@ def get_price(time_unit, duration_minutes)
   else
     info = {
       total_cost: 0,
-      duration_left: duration_minutes
+      duration_left: duration_minutes,
+      'weeks_booked' => 0,
+      'days_booked' => 0,
+      'hours_booked' => 0,
+      'minutes_booked' => 0
     }
   end
-  time_unit_booked = info[:duration_left] / minutes_conversion[time_unit]
-  time_unit_cost = tariff[time_unit] * time_unit_booked
-  info[:duration_left] -= minutes_conversion[time_unit] * time_unit_booked
+  info["#{time_unit}s_booked"] = info[:duration_left] / minutes_conversion[time_unit]
+  time_unit_cost = tariff[time_unit] * info["#{time_unit}s_booked"]
+  info[:duration_left] -= minutes_conversion[time_unit] * info["#{time_unit}s_booked"]
   info[:total_cost] += time_unit_cost
   # if total_cost >
   if time_unit == 'minute'
